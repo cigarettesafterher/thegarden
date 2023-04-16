@@ -68,7 +68,7 @@ async function decode(params) {
 }
 
 async function getToken(params) {
-  var _process$env$NEXTAUTH, _process$env$NEXTAUTH2, _req$headers$authoriz;
+  var _process$env$NEXTAUTH, _process$env$NEXTAUTH2, _req$headers;
 
   const {
     req,
@@ -78,7 +78,7 @@ async function getToken(params) {
     decode: _decode = decode,
     logger = console,
     secret = process.env.NEXTAUTH_SECRET
-  } = params !== null && params !== void 0 ? params : {};
+  } = params;
   if (!req) throw new Error("Must pass `req` to JWT getToken()");
   const sessionStore = new _cookie.SessionStore({
     name: cookieName,
@@ -90,9 +90,10 @@ async function getToken(params) {
     headers: req.headers
   }, logger);
   let token = sessionStore.value;
+  const authorizationHeader = req.headers instanceof Headers ? req.headers.get("authorization") : (_req$headers = req.headers) === null || _req$headers === void 0 ? void 0 : _req$headers.authorization;
 
-  if (!token && ((_req$headers$authoriz = req.headers.authorization) === null || _req$headers$authoriz === void 0 ? void 0 : _req$headers$authoriz.split(" ")[0]) === "Bearer") {
-    const urlEncodedToken = req.headers.authorization.split(" ")[1];
+  if (!token && (authorizationHeader === null || authorizationHeader === void 0 ? void 0 : authorizationHeader.split(" ")[0]) === "Bearer") {
+    const urlEncodedToken = authorizationHeader.split(" ")[1];
     token = decodeURIComponent(urlEncodedToken);
   }
 

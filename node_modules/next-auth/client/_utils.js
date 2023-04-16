@@ -30,6 +30,8 @@ function _fetchData() {
         ctx,
         _ref$req,
         req,
+        url,
+        _req$headers,
         options,
         res,
         data,
@@ -40,50 +42,57 @@ function _fetchData() {
         switch (_context.prev = _context.next) {
           case 0:
             _ref = _args.length > 3 && _args[3] !== undefined ? _args[3] : {}, ctx = _ref.ctx, _ref$req = _ref.req, req = _ref$req === void 0 ? ctx === null || ctx === void 0 ? void 0 : ctx.req : _ref$req;
-            _context.prev = 1;
-            options = req !== null && req !== void 0 && req.headers.cookie ? {
-              headers: {
+            url = "".concat(apiBaseUrl(__NEXTAUTH), "/").concat(path);
+            _context.prev = 2;
+            options = {
+              headers: _objectSpread({
+                "Content-Type": "application/json"
+              }, req !== null && req !== void 0 && (_req$headers = req.headers) !== null && _req$headers !== void 0 && _req$headers.cookie ? {
                 cookie: req.headers.cookie
-              }
-            } : {};
-            _context.next = 5;
-            return fetch("".concat(apiBaseUrl(__NEXTAUTH), "/").concat(path), options);
+              } : {})
+            };
 
-          case 5:
+            if (req !== null && req !== void 0 && req.body) {
+              options.body = JSON.stringify(req.body);
+              options.method = "POST";
+            }
+
+            _context.next = 7;
+            return fetch(url, options);
+
+          case 7:
             res = _context.sent;
-            _context.next = 8;
+            _context.next = 10;
             return res.json();
 
-          case 8:
+          case 10:
             data = _context.sent;
 
             if (res.ok) {
-              _context.next = 11;
+              _context.next = 13;
               break;
             }
 
             throw data;
 
-          case 11:
+          case 13:
             return _context.abrupt("return", Object.keys(data).length > 0 ? data : null);
 
-          case 14:
-            _context.prev = 14;
-            _context.t0 = _context["catch"](1);
-            logger.error("CLIENT_FETCH_ERROR", _objectSpread({
+          case 16:
+            _context.prev = 16;
+            _context.t0 = _context["catch"](2);
+            logger.error("CLIENT_FETCH_ERROR", {
               error: _context.t0,
-              path: path
-            }, req ? {
-              header: req.headers
-            } : {}));
+              url: url
+            });
             return _context.abrupt("return", null);
 
-          case 18:
+          case 20:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[1, 14]]);
+    }, _callee, null, [[2, 16]]);
   }));
   return _fetchData.apply(this, arguments);
 }
@@ -120,9 +129,12 @@ function BroadcastChannel() {
     },
     post: function post(message) {
       if (typeof window === "undefined") return;
-      localStorage.setItem(name, JSON.stringify(_objectSpread(_objectSpread({}, message), {}, {
-        timestamp: now()
-      })));
+
+      try {
+        localStorage.setItem(name, JSON.stringify(_objectSpread(_objectSpread({}, message), {}, {
+          timestamp: now()
+        })));
+      } catch (_unused) {}
     }
   };
 }
